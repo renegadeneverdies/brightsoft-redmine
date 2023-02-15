@@ -6,8 +6,8 @@ require_relative 'client'
 
 module Redmine
   class Interface
-    def initialize(login, password)
-      @client = Redmine::Client.new(login, password)
+    def initialize(login, password, apikey)
+      @client = Redmine::Client.new(login, password, apikey)
     end
 
     private

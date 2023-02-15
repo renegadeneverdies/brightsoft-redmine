@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'lib/interface'
-require 'readline'
 require 'optparse'
 
 options = {}
@@ -26,8 +25,12 @@ OptionParser.new do |parser|
   parser.on('-p', '--password PASSWORD', 'Пароль Redmine') do |password|
     options[:password] = password
   end
+
+  parser.on('-k', '--apikey APIKEY', 'Ключ доступа к API') do |apikey|
+    options[:apikey] = apikey
+  end
 end.parse!
 
 action = options.keys.find { |key| [:create, :destroy, :update].include?(key) }
 
-Redmine::Interface.new(options[:login], options[:password]).send(action)
+Redmine::Interface.new(options[:login], options[:password], options[:apikey]).send(action)
