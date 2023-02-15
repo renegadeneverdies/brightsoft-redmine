@@ -10,10 +10,6 @@ OptionParser.new do |parser|
     options[:create] = true
   end
 
-  parser.on('-d', '--destroy', 'Удалить задачу') do
-    options[:destroy] = true
-  end
-
   parser.on('-u', '--update', 'Изменить атрибутивный состав задачи') do
     options[:update] = true
   end
@@ -25,12 +21,8 @@ OptionParser.new do |parser|
   parser.on('-p', '--password PASSWORD', 'Пароль Redmine') do |password|
     options[:password] = password
   end
-
-  parser.on('-k', '--apikey APIKEY', 'Ключ доступа к API') do |apikey|
-    options[:apikey] = apikey
-  end
 end.parse!
 
-action = options.keys.find { |key| [:create, :destroy, :update].include?(key) }
+action = options.keys.find { |key| [:create, :update].include?(key) }
 
-Redmine::Interface.new(options[:login], options[:password], options[:apikey]).send(action)
+Redmine::Interface.new(options[:login], options[:password]).send(action)
