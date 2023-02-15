@@ -2,22 +2,20 @@
 
 require 'optparse'
 require 'io/console'
-require_relative 'client'
+require_relative 'redmine/client'
 
-module Redmine
-  class Interface
-    def initialize(login, password)
-      @client = Redmine::Client.new(login, password)
-    end
+class Interface
+  def initialize(login, password)
+    @client = Redmine::Client.new(login, password)
+  end
 
-    def create
-      @client.create
-    end
+  def create
+    @client.create
+  end
 
-    def update
-      puts 'Введите идентификатор задачи'
-      issue_id = $stdin.gets.chomp
-      @client.update(issue_id)
-    end
+  def update
+    puts 'Введите идентификатор задачи'
+    issue_id = $stdin.gets.chomp
+    @client.update(issue_id)
   end
 end

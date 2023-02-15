@@ -25,4 +25,4 @@ end.parse!
 
 action = options.keys.find { |key| [:create, :update].include?(key) }
 
-Redmine::Interface.new(options[:login], options[:password]).send(action)
+Interface.new(options[:login], options[:password]).send(action)
