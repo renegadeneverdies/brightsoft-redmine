@@ -6,58 +6,45 @@ require 'net/http'
 
 module Redmine
   class Client
-    def initialize(login, password, apikey)
+    def initialize(login, password)
       @login = login
       @password = password
-      @apikey = apikey
       @base_url = 'https://redmine.bright-soft.org'
     end
 
     def create
-      example_issue = File.read(File.join(File.dirname(__FILE__), '../include/example_issue_create.json'))
-      post('issues.json', example_issue, { 'Content-Type' => 'application/json' })
-    end
-
-    def destroy(id)
-      delete('issues', id)
+      post('issues.json', read_json('../include/example_issue_create.json'))
     end
 
     def update(id)
-      example_issue = File.read(File.join(File.dirname(__FILE__), '../include/example_issue_update.json'))
-      put('issues', id, example_issue, { 'Content-Type' => 'application/json' })
+      put('issues', id, read_json('../include/example_issue_update.json'))
     end
 
     private
 
-    def post(path, body, headers)
+    def post(path, body)
       url = "#{@base_url}/#{path}"
-      perform_request(url, Net::HTTP::Post, body, headers)
+      perform_request(url, Net::HTTP::Post, body)
     end
 
-    def delete(path, id)
+    def put(path, id, body)
       url = "#{@base_url}/#{path}/#{id}.json"
-      perform_request(url, Net::HTTP::Delete)
+      perform_request(url, Net::HTTP::Put, body)
     end
 
-    def put(path, id, body, headers)
-      url = "#{@base_url}/#{path}/#{id}.json"
-      perform_request(url, Net::HTTP::Put, body, headers)
-    end
-
-    def perform_request(path, http_method, body = nil, headers = {})
+    def perform_request(path, http_method, body)
       uri = URI(path)
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = true
 
-      authorized_request = http_method.new(uri, headers)
-      case http_method.to_s
-      when 'Net::HTTP::Delete'
-        authorized_request['Authorization'] = "Basic #{@apikey}"
-      else
-        authorized_request.basic_auth @login, @password
-      end
+      authorized_request = http_method.new(uri, { 'Content-Type' => 'application/json' })
+      authorized_request.basic_auth @login, @password
       authorized_request.body = body
       https.request(authorized_request)
+    end
+
+    def read_json(relative_path)
+      File.read(File.join(File.dirname(__FILE__), relative_path))
     end
   end
 end
