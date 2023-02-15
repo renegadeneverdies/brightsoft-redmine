@@ -14,45 +14,47 @@ module Redmine
     end
 
     def create
-      example_issue = File.read(File.join(File.dirname(__FILE__), '../include/example_issue.json'))
-      post('issues.json', JSON.parse(example_issue))
+      example_issue = File.read(File.join(File.dirname(__FILE__), '../include/example_issue_create.json'))
+      post('issues.json', example_issue)
     end
 
-    def destroy(issue_id)
-      delete('issues', issue_id)
+    def destroy(id)
+      delete('issues', id)
     end
 
-    def update(issue_id)
-      puts 'client edit'
+    def update(id)
+      example_issue = File.read(File.join(File.dirname(__FILE__), '../include/example_issue_update.json'))
+      put('issues.json', id, example_issue)
     end
 
     private
 
     def post(path, body = {})
-      uri = URI("#{@base_url}/#{path}")
-      https = use_https(uri)
-      authorized_request = authorize(uri, Net::HTTP::Post, { 'Content-Type' => 'application/json' })
-      authorized_request.body = body.to_json
-      https.request(authorized_request)
+      url = "#{@base_url}/#{path}"
+      headers = { 'Content-Type' => 'application/json' }
+      perform_request(url, Net::HTTP::Post, body, headers)
     end
 
-    def delete(path, issue_id)
-      uri = URI("#{@base_url}/#{path}/#{issue_id}.json")
-      https = use_https(uri)
-      authorized_request = authorize(uri, Net::HTTP::Delete)
-      https.request(authorized_request)
+    def delete(path, id)
+      url = "#{@base_url}/#{path}/#{id}.json"
+      perform_request(url, Net::HTTP::Delete)
     end
 
-    def use_https(uri)
+    def put(path, id, body = {})
+      url = "#{@base_url}/#{path}/#{id}.json"
+      headers = { 'Content-Type' => 'application/json' }
+      puts perform_request(url, Net::HTTP::Put, body, headers)
+    end
+
+    def perform_request(path, http_method, body = nil, headers = {})
+      uri = URI(path)
       https = Net::HTTP.new(uri.host, uri.port)
       https.use_ssl = true
-      https
-    end
 
-    def authorize(uri, http_method, headers = {})
-      request = http_method.new(uri, headers)
-      request['Authorization'] = "Basic #{Base64.strict_encode64("#{@login}:#{@password}")}"
-      request
+      authorized_request = http_method.new(uri, headers)
+      authorized_request.basic_auth @login, @password
+      authorized_request.body = body
+      https.request(authorized_request)
     end
   end
 end

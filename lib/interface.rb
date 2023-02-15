@@ -23,7 +23,9 @@ module Redmine
     end
 
     def update
-      @client.update
+      puts 'Введите идентификатор задачи'
+      issue_id = $stdin.gets.chomp
+      @client.update(issue_id)
     end
   end
 end
